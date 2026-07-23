@@ -1,5 +1,6 @@
 namespace Ais.Net.Models.Json.Benchmarks;
 
+using System;
 using System.Buffers;
 
 using Ais.Net.Models;
@@ -29,13 +30,15 @@ public class JsonSerializationBenchmarks
     {
         this.message = this.MessageKind switch
         {
+            "Type1Through3" => CreateType1Through3(),
             "Type5" => CreateType5(),
             "Type18" => CreateType18(),
             "Type19" => CreateType19(),
             "Type24Part0" => CreateType24Part0(),
             "Type24Part1" => CreateType24Part1(),
             "Type27" => CreateType27(),
-            _ => CreateType1Through3(),
+            _ => throw new ArgumentOutOfRangeException(
+                nameof(this.MessageKind), this.MessageKind, "Unknown message kind."),
         };
         this.utf8Json = AisMessageJson.SerializeToUtf8Bytes(this.message);
         this.pooledWriter = new System.Text.Json.Utf8JsonWriter(this.bufferWriter);
