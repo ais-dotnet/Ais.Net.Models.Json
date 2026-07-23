@@ -5,7 +5,7 @@
   </PropertyGroup>
 
   <ItemGroup Label="Ais.Net.Models.Json">
-    <PackageVersion Include="Ais.Net.Models" Version="1.0.0" />
+    <PackageVersion Include="Ais.Net.Models" Version="1.0.1" />
   </ItemGroup>
 
   <ItemGroup Label="Ais.Net.Models.Json.Specs">
