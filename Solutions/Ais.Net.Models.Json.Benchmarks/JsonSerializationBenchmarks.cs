@@ -1,5 +1,6 @@
 namespace Ais.Net.Models.Json.Benchmarks;
 
+using System;
 using System.Buffers;
 
 using Ais.Net.Models;
@@ -11,8 +12,7 @@ using BenchmarkDotNet.Attributes;
 /// <summary>
 /// Measures the JSON serialization paths: allocating byte array vs writing into a reused
 /// <see cref="ArrayBufferWriter{T}"/> (the NATS-representative, lowest-allocation path), and
-/// deserialization from a cached UTF-8 payload. Run across a position-heavy Type 1-3 and a
-/// string-heavy Type 5.
+/// deserialization from a cached UTF-8 payload. Run across all seven AIS message types.
 /// </summary>
 [MemoryDiagnoser]
 public class JsonSerializationBenchmarks
@@ -22,13 +22,24 @@ public class JsonSerializationBenchmarks
     private byte[] utf8Json = null!;
     private System.Text.Json.Utf8JsonWriter pooledWriter = null!;
 
-    [Params("Type1Through3", "Type5")]
+    [Params("Type1Through3", "Type5", "Type18", "Type19", "Type24Part0", "Type24Part1", "Type27")]
     public string MessageKind { get; set; } = "Type1Through3";
 
     [GlobalSetup]
     public void Setup()
     {
-        this.message = this.MessageKind == "Type5" ? CreateType5() : CreateType1Through3();
+        this.message = this.MessageKind switch
+        {
+            "Type1Through3" => CreateType1Through3(),
+            "Type5" => CreateType5(),
+            "Type18" => CreateType18(),
+            "Type19" => CreateType19(),
+            "Type24Part0" => CreateType24Part0(),
+            "Type24Part1" => CreateType24Part1(),
+            "Type27" => CreateType27(),
+            _ => throw new ArgumentOutOfRangeException(
+                nameof(this.MessageKind), this.MessageKind, "Unknown message kind."),
+        };
         this.utf8Json = AisMessageJson.SerializeToUtf8Bytes(this.message);
         this.pooledWriter = new System.Text.Json.Utf8JsonWriter(this.bufferWriter);
     }
@@ -100,4 +111,81 @@ public class JsonSerializationBenchmarks
         ShipType: (ShipType)70,
         Spare423: 0,
         VesselName: "EVER GIVEN");
+
+    private static AisMessageType18 CreateType18() => new(
+        CanAcceptMessage22ChannelAssignment: true,
+        CanSwitchBands: true,
+        CourseOverGround: 123.4f,
+        CsUnit: ClassBUnit.Cstdma,
+        HasDisplay: true,
+        IsAssigned: false,
+        IsDscAttached: true,
+        Mmsi: 235009802,
+        Position: new Position(50.12345, -1.98765),
+        PositionAccuracy: true,
+        RadioStatusType: ClassBRadioStatusType.Itdma,
+        RaimFlag: false,
+        RegionalReserved139: 0,
+        RegionalReserved38: 0,
+        RepeatIndicator: 0,
+        SpeedOverGround: 12.3f,
+        TimeStampSecond: 42,
+        TrueHeadingDegrees: 181);
+
+    private static AisMessageType19 CreateType19() => new(
+        CourseOverGround: 123.4f,
+        DimensionToBow: 100,
+        DimensionToPort: 15,
+        DimensionToStarboard: 15,
+        DimensionToStern: 100,
+        IsAssigned: false,
+        IsDteNotReady: false,
+        Mmsi: 235009802,
+        Position: new Position(50.12345, -1.98765),
+        PositionAccuracy: true,
+        PositionFixType: EpfdFixType.Gps,
+        RaimFlag: false,
+        RegionalReserved139: 0,
+        RegionalReserved38: 0,
+        RepeatIndicator: 0,
+        ShipName: "EVER GIVEN",
+        ShipType: (ShipType)70,
+        Spare308: 0,
+        SpeedOverGround: 12.3f,
+        TimeStampSecond: 42,
+        TrueHeadingDegrees: 181);
+
+    private static AisMessageType24Part0 CreateType24Part0() => new(
+        Mmsi: 235009802,
+        PartNumber: 0,
+        RepeatIndicator: 0,
+        Spare160: 0);
+
+    private static AisMessageType24Part1 CreateType24Part1() => new(
+        CallSign: "GBADG",
+        DimensionToBow: 100,
+        DimensionToPort: 15,
+        DimensionToStarboard: 15,
+        DimensionToStern: 100,
+        Mmsi: 235009802,
+        MothershipMmsi: 0,
+        PartNumber: 1,
+        RepeatIndicator: 0,
+        SerialNumber: 12345,
+        Spare162: 0,
+        ShipType: (ShipType)70,
+        UnitModelCode: 1,
+        VendorIdRev3: "SRT",
+        VendorIdRev4: "SRT");
+
+    private static AisMessageType27 CreateType27() => new(
+        CourseOverGround: 123.4f,
+        GnssPositionStatus: true,
+        Mmsi: 235009802,
+        NavigationStatus: NavigationStatus.UnderwayUsingEngine,
+        Position: new Position(50.12345, -1.98765),
+        PositionAccuracy: true,
+        RaimFlag: false,
+        RepeatIndicator: 0,
+        SpeedOverGround: 12.3f);
 }
