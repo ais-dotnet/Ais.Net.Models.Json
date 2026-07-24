@@ -36,32 +36,7 @@ if (received is AisMessageType18 positionReport)
 }
 ```
 
-### NATS
-
-This library has no NATS dependency. Wire it up in your application with a small adapter over the primitives:
-
-```csharp
-using System.Buffers;
-using Ais.Net.Models;
-using Ais.Net.Models.Json;
-using NATS.Client.Core;
-
-public sealed class AisNatsSerializer
-    : INatsSerialize<AisMessageBase>, INatsDeserialize<AisMessageBase>
-{
-    public static readonly AisNatsSerializer Default = new();
-
-    public void Serialize(IBufferWriter<byte> bufferWriter, AisMessageBase value)
-        => AisMessageJson.Serialize(bufferWriter, value);
-
-    public AisMessageBase? Deserialize(in ReadOnlySequence<byte> buffer)
-        => buffer.IsSingleSegment
-            ? AisMessageJson.Deserialize(buffer.FirstSpan)
-            : AisMessageJson.Deserialize(buffer.ToArray());
-
-    public INatsSerializer<AisMessageBase> CombineWith(INatsSerializer<AisMessageBase> next) => this;
-}
-```
+For NATS, use the dedicated [`Ais.Net.Models.Json.Nats`](https://github.com/ais-dotnet/Ais.Net.Models.Json.Nats) package — a ready-made NATS.Net serializer and registry built on these primitives.
 
 ## Building
 
