@@ -1,16 +1,13 @@
-namespace Ais.Net.Models.Json.Specs;
 
 using System.Buffers;
 using System.Text;
-
-using Ais.Net.Models;
 using Ais.Net.Models.Abstractions;
-using Ais.Net.Models.Json;
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 using Shouldly;
 
+namespace Ais.Net.Models.Json.Specs;
 [TestClass]
 public class AisMessageJsonTests
 {
