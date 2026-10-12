@@ -5,8 +5,6 @@
 using System;
 using System.Buffers;
 
-using Ais.Net.Models;
-
 namespace Ais.Net.Models.Json;
 
 /// <summary>

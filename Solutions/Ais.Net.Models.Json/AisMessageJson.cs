@@ -8,8 +8,6 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Text.Json.Serialization.Metadata;
 
-using Ais.Net.Models;
-
 namespace Ais.Net.Models.Json;
 
 /// <summary>
@@ -25,23 +23,19 @@ namespace Ais.Net.Models.Json;
 /// </remarks>
 public static class AisMessageJson
 {
-    private static readonly JsonSerializerOptions SerializerOptions = BuildOptions();
-
-    private static readonly JsonTypeInfo<AisMessageBase> MessageTypeInfo =
-        (JsonTypeInfo<AisMessageBase>)SerializerOptions.GetTypeInfo(typeof(AisMessageBase));
 
     /// <summary>
     /// Gets the configured serializer options (the source-generated resolver plus the polymorphism
     /// configuration). Exposed so transport integrations (for example a NATS serializer) can use
     /// System.Text.Json directly.
     /// </summary>
-    public static JsonSerializerOptions Options => SerializerOptions;
+    public static JsonSerializerOptions Options { get; } = BuildOptions();
 
     /// <summary>
     /// Gets the source-generated type metadata for the polymorphic message root, for low-allocation
     /// and transport-integration scenarios.
     /// </summary>
-    public static JsonTypeInfo<AisMessageBase> TypeInfo => MessageTypeInfo;
+    public static JsonTypeInfo<AisMessageBase> TypeInfo { get; } = (JsonTypeInfo<AisMessageBase>)Options.GetTypeInfo(typeof(AisMessageBase));
 
     /// <summary>
     /// Serializes a message to a newly allocated UTF-8 JSON byte array.
@@ -49,7 +43,7 @@ public static class AisMessageJson
     /// <param name="message">The message to serialize.</param>
     /// <returns>The UTF-8 JSON representation.</returns>
     public static byte[] SerializeToUtf8Bytes(AisMessageBase message) =>
-        JsonSerializer.SerializeToUtf8Bytes(message, MessageTypeInfo);
+        JsonSerializer.SerializeToUtf8Bytes(message, TypeInfo);
 
     /// <summary>
     /// Serializes a message as UTF-8 JSON directly into a caller-provided buffer writer, without an
@@ -62,7 +56,7 @@ public static class AisMessageJson
         ArgumentNullException.ThrowIfNull(bufferWriter);
 
         using Utf8JsonWriter writer = new(bufferWriter);
-        JsonSerializer.Serialize(writer, message, MessageTypeInfo);
+        JsonSerializer.Serialize(writer, message, TypeInfo);
     }
 
     /// <summary>
@@ -77,7 +71,7 @@ public static class AisMessageJson
     {
         ArgumentNullException.ThrowIfNull(writer);
 
-        JsonSerializer.Serialize(writer, message, MessageTypeInfo);
+        JsonSerializer.Serialize(writer, message, TypeInfo);
     }
 
     /// <summary>
@@ -87,7 +81,7 @@ public static class AisMessageJson
     /// <param name="utf8Json">The UTF-8 JSON payload.</param>
     /// <returns>The deserialized message, or <see langword="null"/> when the payload is JSON null.</returns>
     public static AisMessageBase? Deserialize(ReadOnlySpan<byte> utf8Json) =>
-        JsonSerializer.Deserialize(utf8Json, MessageTypeInfo);
+        JsonSerializer.Deserialize(utf8Json, TypeInfo);
 
     private static JsonSerializerOptions BuildOptions()
     {

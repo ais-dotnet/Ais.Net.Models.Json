@@ -3,8 +3,6 @@
 // </copyright>
 
 using System.Text.Json.Serialization;
-
-using Ais.Net.Models;
 using Ais.Net.Models.Abstractions;
 
 namespace Ais.Net.Models.Json;

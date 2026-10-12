@@ -5,20 +5,16 @@
   </PropertyGroup>
 
   <ItemGroup Label="Ais.Net.Models.Json">
-    <PackageVersion Include="Ais.Net.Models" Version="1.0.1" />
+    <PackageVersion Include="Ais.Net.Models" Version="1.0.2" />
   </ItemGroup>
 
   <ItemGroup Label="Ais.Net.Models.Json.Specs">
-    <PackageVersion Include="NSubstitute" Version="6.0.0" />
+    <PackageVersion Include="NSubstitute" Version="6.2.0" />
     <PackageVersion Include="Shouldly" Version="4.3.0" />
   </ItemGroup>
 
   <ItemGroup Label="Ais.Net.Models.Json.Benchmarks">
     <PackageVersion Include="BenchmarkDotNet" Version="0.15.8" />
-  </ItemGroup>
-
-  <ItemGroup Label="Build">
-    <PackageVersion Include="Endjin.RecommendedPractices.GitHub" Version="2.1.18" />
   </ItemGroup>
 
 </Project>
